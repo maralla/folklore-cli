@@ -3,8 +3,6 @@
 import mock
 import socket
 from gunicorn.sock import create_sockets
-import takumi_cli.worker as takumi_cli_worker
-from takumi_cli.worker import Worker
 
 
 class MockContext(dict):
@@ -18,6 +16,8 @@ class MockService(object):
 
 
 def test_worker_handle(app_yaml, gunicorn_serve):
+    import takumi_cli.worker as takumi_cli_worker
+    from takumi_cli.worker import Worker
     from takumi_cli.app import AppRunner
     from .app import app as mock_app
 
@@ -28,7 +28,7 @@ def test_worker_handle(app_yaml, gunicorn_serve):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    with mock.patch.object(takumi_cli_worker, 'Service',
+    with mock.patch.object(takumi_cli_worker, 'TakumiService',
                            return_value=MockService):
         worker.handle(worker.sockets[0], sock, ('127.0.0.1', 8465))
 
