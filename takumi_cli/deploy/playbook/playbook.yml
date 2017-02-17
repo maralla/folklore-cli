@@ -1,0 +1,56 @@
+---
+
+- hosts: service-deploy
+  become: yes
+  tasks:
+    # Takumi services are owned by www-data:www-data
+    - name: create www-data group
+      group: name=www-data state=present
+      tags: deploy
+    - name: create www-data user
+      user: name=www-data group=www-data createhome=no
+      tags: deploy
+
+    - name: create working directory
+      file:
+        path: /srv/{{ app_name }}
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0755
+      tags: deploy
+
+    - name: checkout to temp dir
+      become: no
+      local_action:
+        module: git
+        repo: '{{ app_repo }}'
+        dest: /tmp/{{ app_name }}
+        version: '{{ version }}'
+      tags: deploy
+
+    - name: save commit file
+      become: no
+      local_action: shell git rev-parse '{{ version }}' > .commit chdir=/tmp/{{ app_name }}
+      tags: deploy
+
+    - name: synchronize application
+      synchronize:
+        src: /tmp/{{ app_name }}/
+        dest: /srv/{{ app_name }}
+        delete: yes
+        rsync_opts:
+          - "--filter='+ .commit'"
+          - "--filter='- env.yaml'"
+          - "--filter='- hosts'"
+          - "--filter='- .git/'"
+          - "--filter=':- .gitignore'"
+      tags: deploy
+
+    - name: change application owner to www-data
+      file:
+        dest: /srv/{{ app_name }}
+        recurse: yes
+        owner: www-data
+        group: www-data
+      tags: deploy
