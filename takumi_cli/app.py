@@ -65,10 +65,6 @@ class AppRunner(Application):
     def init(self, parser, opts, args):
         self.set_cfg()
         self.cfg.set('client_timeout', config.client_timeout)
-
-        if platform.system() == 'Linux':
-            self.cfg.set('reuseport', True)
-
         self.patch_gunicorn()
 
     def patch_gunicorn(self):
