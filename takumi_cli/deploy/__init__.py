@@ -9,7 +9,6 @@ Implement deploy command using ansible.
 
 import os
 import tempfile
-import json
 from takumi_config import config
 
 PLAYBOOK_PATH = os.path.join(
@@ -22,9 +21,33 @@ def _find_hosts(cwd):
         return hosts
 
 
+def _vars(d):
+    return ['{}={}'.format(k, v) for k, v in sorted(d.items())]
+
+
+def _convert_section(name, data):
+    hosts = data.get('hosts', [])
+    group_vars = data.get('vars', {})
+
+    items = ['[{}]'.format(name)]
+    for host_name, host_vars in sorted(hosts.items()):
+        item = [host_name]
+        item.extend(_vars(host_vars))
+        items.append(' '.join(item))
+
+    section = '\n'.join(items)
+
+    var_section = ''
+    if group_vars:
+        var_items = '\n'.join(_vars(group_vars))
+        var_section = '[{}:vars]\n{}'.format(name, var_items)
+    return [section, var_section]
+
+
 def _convert_hosts(hosts):
-    ret = {}
-    for k, v in hosts.items():
+    section_names = []
+    sections = []
+    for k, v in sorted(hosts.items()):
         converted = {}
         if not isinstance(v, dict):
             v = {'hosts': v}
@@ -33,28 +56,32 @@ def _convert_hosts(hosts):
             hs = [hs]
         for item in hs:
             if not isinstance(item, dict):
-                item = {item: None}
+                item = {item: {}}
             converted.update(item)
         v['hosts'] = converted
-        ret[k] = v
-    return ret
+        sections.extend(_convert_section(k, v))
+        section_names.append(k)
+    return sections, section_names
 
 
 def _gen_hosts(deploy_config):
     hosts = deploy_config.get('targets', {})
-    hosts = _convert_hosts(hosts)
+    sections, section_names = _convert_hosts(hosts)
 
     deploy_vars = deploy_config.get('vars', {})
     deploy_vars['app_name'] = config.app_name
-    entry = {
-        'service-deploy': {
-            'vars': deploy_vars,
-            'children': hosts
-        }
-    }
+
+    main_section = ['[service-deploy:children]']
+    main_section.extend(section_names)
+    sections.append('\n'.join(main_section))
+
+    main_vars = ['[service-deploy:vars]']
+    main_vars.extend(_vars(deploy_vars))
+    sections.append('\n'.join(main_vars))
+
     hosts_file = tempfile.mktemp()
     with open(hosts_file, 'w') as f:
-        f.write(json.dumps(entry))
+        f.write('\n'.join(sections))
     return hosts_file
 
 
@@ -66,8 +93,8 @@ def _compose_args(target, args):
     def _has_invertory():
         return bool(set(('-i', '--inventory-file')).intersection(args))
 
+    cwd = os.getcwd()
     if not _has_invertory():
-        cwd = os.getcwd()
         hosts = _find_hosts(cwd)
         if not hosts and config.deploy:
             hosts = _gen_hosts(config.deploy)

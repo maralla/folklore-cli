@@ -10,7 +10,6 @@ Takumi services using gunicorn gevent worker.
 
 import sys
 import os
-import platform
 
 from gunicorn.config import Setting, validate_pos_int
 from gunicorn.app.base import Application

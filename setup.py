@@ -12,12 +12,21 @@ setup(
     author="Eleme Lab",
     author_email="imaralla@icloud.com",
     packages=find_packages(),
-    package_data={'': ['LICENSE', 'README.rst']},
+    include_package_data=True,
+    zip_safe=False,
     url='https://github.com/elemecreativelab/takumi-cli',
     install_requires=[
         'docopt==0.6.2',
         'schema==0.6.5',
+        'gevent>=1.2.1',
+        'thriftpy',
+        'gunicorn',
+        'git+git://github.com/elemepi/takumi-config.git#egg=takumi_config',
+        'git+git://github.com/elemepi/takumi-service.git#egg=takumi_service',
     ],
+    extras_require={
+        'deploy': ['ansible>=2.2.0.0']
+    },
     entry_points={
         'console_scripts': [
             'takumi = takumi_cli.cmds:main'

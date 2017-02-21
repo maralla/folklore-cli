@@ -4,14 +4,14 @@
   become: yes
   tasks:
     # Takumi services are owned by www-data:www-data
-    - name: create www-data group
+    - name: Create www-data group
       group: name=www-data state=present
       tags: deploy
-    - name: create www-data user
+    - name: Create www-data user
       user: name=www-data group=www-data createhome=no
       tags: deploy
 
-    - name: create working directory
+    - name: Create working directory
       file:
         path: /srv/{{ app_name }}
         state: directory
@@ -20,7 +20,7 @@
         mode: 0755
       tags: deploy
 
-    - name: checkout to temp dir
+    - name: Checkout to temp dir
       become: no
       local_action:
         module: git
@@ -29,28 +29,91 @@
         version: '{{ version }}'
       tags: deploy
 
-    - name: save commit file
+    - name: Save commit file
       become: no
       local_action: shell git rev-parse '{{ version }}' > .commit chdir=/tmp/{{ app_name }}
       tags: deploy
 
-    - name: synchronize application
+    - name: Synchronize application
       synchronize:
         src: /tmp/{{ app_name }}/
         dest: /srv/{{ app_name }}
         delete: yes
+        checksum: yes
+        archive: no
+        recursive: yes
         rsync_opts:
           - "--filter='+ .commit'"
           - "--filter='- env.yaml'"
           - "--filter='- hosts'"
           - "--filter='- .git/'"
           - "--filter=':- .gitignore'"
-      tags: deploy
+      tags: deploy,sync
+      notify: restart service
 
-    - name: change application owner to www-data
+    - name: Change application owner to www-data
       file:
         dest: /srv/{{ app_name }}
         recurse: yes
         owner: www-data
         group: www-data
       tags: deploy
+
+    - name: Pip install
+      pip:
+        chdir: /srv/{{ app_name }}
+        requirements: requirements.txt
+        virtualenv: /srv/{{ app_name }}_venv
+        virtualenv_python: "{{ python_version | default('python3') }}"
+        extra_args: "-i {{ pypi | default('https://pypi.douban.com/simple') }}"
+      tags: deploy
+
+    - name: Create log directory
+      file:
+        path: /var/log/{{ app_name }}
+        state: directory
+        owner: syslog
+        group: adm
+        mode: 0755
+
+    - name: Sync logrotate config
+      template:
+        src: files/logrotate.j2
+        dest: /etc/logrotate.d/{{ app_name }}
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Config rsyslog
+      template:
+        src: files/rsyslog.j2
+        dest: /etc/rsyslog.d/20-{{ app_name }}.conf
+        owner: syslog
+        group: adm
+        mode: 0644
+      notify: restart rsyslog
+
+    - name: Add supervisor config
+      template:
+        src: files/supervisor.j2
+        dest: /etc/supervisord.d/{{ app_name }}.ini
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart service
+
+    - name: Add service to supervisor
+      supervisorctl:
+        name: "{{ app_name }}"
+        state: present
+
+  handlers:
+    - name: Restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted
+
+    - name: Restart service
+      supervisorctl:
+        name: "{{ app_name }}"
+        state: restarted
