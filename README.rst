@@ -1,6 +1,9 @@
 takumi-cli: Takumi command line toolkit
 =======================================
 
+.. image:: https://travis-ci.org/elemepi/takumi-cli.svg?branch=master
+    :target: https://travis-ci.org/elemepi/takumi-cli
+
 Command line tool for managing Takumi services.
 
 Usage
@@ -18,7 +21,7 @@ To run a Takumi service
 
     $ takumi serve
 
-Deploy
+To deploy an application:
 
 .. code-block:: bash
 
@@ -26,3 +29,5 @@ Deploy
     # or ansible inventory file.
     # <ansible_args> is then extra arguments passed to ansible-playbook.
     $ takumi deploy <target> <ansible_args>
+
+The deploy command is implemented using `ansible <https://github.com/ansible/ansible>`_.
