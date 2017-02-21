@@ -74,6 +74,7 @@
         executable: /srv/{{ app_name }}_venv/bin/pip
         extra_args: "-i {{ pypi | default('https://pypi.douban.com/simple') }}"
       tags: deploy,req
+      notify: Restart service
 
     - name: Create log directory
       file:
