@@ -49,7 +49,7 @@
           - "--filter='- .git/'"
           - "--filter=':- .gitignore'"
       tags: deploy,sync
-      notify: restart service
+      notify: Restart service
 
     - name: Change application owner to www-data
       file:
@@ -59,14 +59,21 @@
         group: www-data
       tags: deploy
 
+    - name: Create virtualenv
+      pip:
+        name: IPython
+        chdir: /srv/{{ app_name }}
+        virtualenv: /srv/{{ app_name }}_venv
+        virtualenv_python: "{{ python_version | default('python3') }}"
+      tags: deploy,venv
+
     - name: Pip install
       pip:
         chdir: /srv/{{ app_name }}
         requirements: requirements.txt
-        virtualenv: /srv/{{ app_name }}_venv
-        virtualenv_python: "{{ python_version | default('python3') }}"
+        executable: /srv/{{ app_name }}_venv/bin/pip
         extra_args: "-i {{ pypi | default('https://pypi.douban.com/simple') }}"
-      tags: deploy
+      tags: deploy,req
 
     - name: Create log directory
       file:
@@ -91,7 +98,7 @@
         owner: syslog
         group: adm
         mode: 0644
-      notify: restart rsyslog
+      notify: Restart rsyslog
 
     - name: Add supervisor config
       template:
@@ -100,7 +107,7 @@
         owner: root
         group: root
         mode: 0644
-      notify: restart service
+      notify: Restart service
 
     - name: Add service to supervisor
       supervisorctl:

@@ -21,6 +21,8 @@ setup(
         'gevent>=1.2.1',
         'thriftpy',
         'gunicorn',
+    ],
+    dependency_links=[
         'git+git://github.com/elemepi/takumi-config.git#egg=takumi_config',
         'git+git://github.com/elemepi/takumi-service.git#egg=takumi_service',
     ],

@@ -18,12 +18,7 @@ from thriftpy.transport import TSocket
 from thriftpy.protocol.exc import TProtocolException
 from thriftpy.protocol.cybin import ProtocolError
 from thriftpy.transport import TTransportException
-
-# import log hook
-import takumi_service.log as _  # noqa.
-
 from takumi_service.service import TakumiService
-from takumi_service.hook import hook_registry
 
 
 class Worker(GeventWorker):
@@ -63,11 +58,6 @@ class Worker(GeventWorker):
             self.log.exception('%r: %r', addr, e)
         finally:
             ctx.clear()
-
-    def init_process(self):
-        # Do any initialization here
-        hook_registry.on_init_process()
-        super(Worker, self).init_process()
 
 # Replace gunicorn default workers
 gunicorn.workers.SUPPORTED_WORKERS.clear()

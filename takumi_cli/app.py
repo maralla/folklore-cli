@@ -6,6 +6,14 @@ takumi_cli.app
 
 This module implements the `serve` command. This command is used for running
 Takumi services using gunicorn gevent worker.
+
+Available hooks:
+
+    - after_load    Hook to be called after app imported
+
+Registered hooks:
+
+    - after_load
 """
 
 import sys
@@ -16,9 +24,14 @@ from gunicorn.app.base import Application
 from gunicorn.util import import_app
 
 from takumi_config import config
+from takumi_service.hook import hook_registry
+from takumi_service.log import config_log
 
 # register gevent_thriftpy worker
 from .worker import Worker as _  # noqa
+
+# register log config hook
+hook_registry.register(config_log)
 
 
 class ClientTimeout(Setting):
@@ -42,7 +55,12 @@ class AppRunner(Application):
 
     def load(self):
         self.chdir()
-        return lambda: import_app(config.app)
+
+        def load_app():
+            app = import_app(config.app)
+            hook_registry.on_after_load()
+            return app
+        return load_app
 
     def set_cfg(self):
         self.cfg.set('default_proc_name', config.app_name)
