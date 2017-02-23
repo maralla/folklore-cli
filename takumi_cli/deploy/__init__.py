@@ -137,7 +137,6 @@ def start(target, args):
     :param args: arguments passed to ansible
     """
     ansible_args = _compose_args(target, args)
-    print(ansible_args)
     from ansible.cli.playbook import PlaybookCLI
     cli = PlaybookCLI(ansible_args)
     cli.parse()
