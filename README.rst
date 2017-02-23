@@ -31,3 +31,27 @@ To deploy an application:
     $ takumi deploy <target> <ansible_args>
 
 The deploy command is implemented using `ansible <https://github.com/ansible/ansible>`_.
+
+To deploy crontab, add the following config to *app.yaml*
+
+.. code-block:: yaml
+
+    deploy:
+      crontab:
+        - name: check dirs
+          schedule: "0 5,2 * * *"
+          job: 'ls -alh > /dev/null'
+
+        - name: say hello
+          schedule:
+            minute: 0
+            hour: 5,2
+          job: 'scripts/say_hello.py'
+
+then run:
+
+.. code-block:: bash
+
+    $ takumi deploy <target> -t cron
+
+Cron jobs are run under app working directory ``/srv/{{ app_name }}``.

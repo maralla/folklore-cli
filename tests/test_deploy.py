@@ -39,6 +39,7 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+crontabs=[]
 version=HEAD"""
 
 
@@ -66,6 +67,7 @@ localhost
 testing
 [service-deploy:vars]
 app_name=test
+crontabs=[]
 version=HEAD"""
 
 
@@ -112,6 +114,7 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+crontabs=[]
 version=HEAD"""
 
 
@@ -148,4 +151,38 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+crontabs=[]
 version=HEAD"""
+
+
+def test_convert_crontab(app_yaml):
+    input_data = [
+        {
+            'job': 'ls -alh > /dev/null',
+            'name': 'check dirs',
+            'schedule': '0 5,2 * * *'
+        },
+        {
+            'job': 'scripts/say_hello.py',
+            'name': 'say hello',
+            'schedule': {
+                'hour': '5,2',
+                'minute': 0
+            }
+        }
+    ]
+    from takumi_cli.deploy import _convert_crontab
+    ret = _convert_crontab(input_data)
+    assert ret == [
+        {
+            'month': '*', 'hour': '5,2', 'minute': '0', 'day': '*',
+            'name': 'check dirs',
+            'work_job': 'cd /srv/test && ls -alh > /dev/null',
+            'job': 'ls -alh > /dev/null',
+            'schedule': '0 5,2 * * *', 'weekday': '*'
+        }, {
+            'hour': '5,2', 'job': 'scripts/say_hello.py',
+            'minute': 0, 'schedule': {'minute': 0, 'hour': '5,2'},
+            'name': 'say hello',
+            'work_job': 'cd /srv/test && scripts/say_hello.py'
+        }]

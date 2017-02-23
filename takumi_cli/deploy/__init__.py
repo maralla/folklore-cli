@@ -7,6 +7,7 @@ takumi_cli.deploy
 Implement deploy command using ansible.
 """
 
+import json
 import os
 import tempfile
 from takumi_config import config
@@ -64,12 +65,34 @@ def _convert_hosts(hosts):
     return sections, section_names
 
 
+def _convert_crontab(data):
+    working_dir = '/srv/{}'.format(config.app_name)
+    items = []
+    for item in data:
+        sched = item.get('schedule')
+        if isinstance(sched, str):
+            minute, hour, day, month, weekday = sched.split()
+            sched = {
+                'minute': minute,
+                'hour': hour,
+                'day': day,
+                'month': month,
+                'weekday': weekday
+            }
+        item.update(sched)
+        item['work_job'] = 'cd {} && {}'.format(working_dir, item['job'])
+        items.append(item)
+    return items
+
+
 def _gen_hosts(deploy_config):
     hosts = deploy_config.get('targets', {})
     sections, section_names = _convert_hosts(hosts)
 
+    crontab = _convert_crontab(deploy_config.get('crontab', []))
     deploy_vars = deploy_config.get('vars', {})
     deploy_vars['app_name'] = config.app_name
+    deploy_vars['crontabs'] = json.dumps(crontab)
 
     main_section = ['[service-deploy:children]']
     main_section.extend(section_names)
@@ -102,6 +125,8 @@ def _compose_args(target, args):
             args.extend(['-i', hosts])
 
     args.extend(['-e', 'app_repo={}'.format(cwd)])
+    if '-t' not in args and '--tags' not in args:
+        args.extend(['-t', 'deploy'])
     return ['ansible-playbook'] + args
 
 
@@ -112,6 +137,7 @@ def start(target, args):
     :param args: arguments passed to ansible
     """
     ansible_args = _compose_args(target, args)
+    print(ansible_args)
     from ansible.cli.playbook import PlaybookCLI
     cli = PlaybookCLI(ansible_args)
     cli.parse()
