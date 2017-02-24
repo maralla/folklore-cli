@@ -125,8 +125,6 @@ def _compose_args(target, args):
             args.extend(['-i', hosts])
 
     args.extend(['-e', 'app_repo={}'.format(cwd)])
-    if '-t' not in args and '--tags' not in args:
-        args.extend(['-t', 'deploy'])
     return ['ansible-playbook'] + args
 
 
