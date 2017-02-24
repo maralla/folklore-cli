@@ -91,8 +91,11 @@ def _gen_hosts(deploy_config):
 
     crontab = _convert_crontab(deploy_config.get('crontab', []))
     deploy_vars = deploy_config.get('vars', {})
-    deploy_vars['app_name'] = config.app_name
-    deploy_vars['crontabs'] = json.dumps(crontab)
+    deploy_vars.update({
+        'app_name': config.app_name,
+        'app_repo': os.getcwd(),
+        'crontabs': json.dumps(crontab)
+    })
 
     main_section = ['[service-deploy:children]']
     main_section.extend(section_names)
@@ -116,15 +119,12 @@ def _compose_args(target, args):
     def _has_inventory():
         return bool(set(('-i', '--inventory-file')).intersection(args))
 
-    cwd = os.getcwd()
     if not _has_inventory():
-        hosts = _find_hosts(cwd)
+        hosts = _find_hosts(os.getcwd())
         if not hosts and config.deploy:
             hosts = _gen_hosts(config.deploy)
         if hosts:
             args.extend(['-i', hosts])
-
-    args.extend(['-e', 'app_repo={}'.format(cwd)])
     return ['ansible-playbook'] + args
 
 

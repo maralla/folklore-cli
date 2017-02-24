@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import mock
+import os
+
 
 def test_gen_hosts1(app_yaml):
     # vars:
@@ -26,7 +29,8 @@ def test_gen_hosts1(app_yaml):
             'version': 'HEAD'
         }
     }
-    temp_host = _gen_hosts(data)
+    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
+        temp_host = _gen_hosts(data)
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -39,6 +43,7 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+app_repo=repo_path
 crontabs=[]
 version=HEAD"""
 
@@ -57,7 +62,8 @@ def test_gen_hosts2(app_yaml):
             'version': 'HEAD'
         }
     }
-    temp_host = _gen_hosts(data)
+    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
+        temp_host = _gen_hosts(data)
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -67,6 +73,7 @@ localhost
 testing
 [service-deploy:vars]
 app_name=test
+app_repo=repo_path
 crontabs=[]
 version=HEAD"""
 
@@ -101,7 +108,8 @@ def test_gen_hosts3(app_yaml):
             'version': 'HEAD'
         }
     }
-    temp_host = _gen_hosts(data)
+    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
+        temp_host = _gen_hosts(data)
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -114,6 +122,7 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+app_repo=repo_path
 crontabs=[]
 version=HEAD"""
 
@@ -140,7 +149,8 @@ def test_gen_hosts4(app_yaml):
             'version': 'HEAD'
         }
     }
-    temp_host = _gen_hosts(data)
+    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
+        temp_host = _gen_hosts(data)
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -151,6 +161,7 @@ version=23543543
 testing
 [service-deploy:vars]
 app_name=test
+app_repo=repo_path
 crontabs=[]
 version=HEAD"""
 
