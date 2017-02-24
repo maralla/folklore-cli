@@ -19,6 +19,7 @@ Commands:
     shell           Start an IPython REPL
 """
 
+import sys
 import schema
 from docopt import docopt
 
@@ -59,4 +60,6 @@ def main():
     except schema.SchemaError as e:
         exit(e)
 
+    # replace argv
+    sys.argv = [' '.join(sys.argv[:2])] + sys.argv[2:]
     run(args['<command>'], args['<args>'])

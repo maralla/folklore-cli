@@ -125,7 +125,7 @@ def _compose_args(target, args):
             hosts = _gen_hosts(config.deploy)
         if hosts:
             args.extend(['-i', hosts])
-    return ['ansible-playbook'] + args
+    return args
 
 
 def start(target, args):
@@ -134,8 +134,10 @@ def start(target, args):
     :param target: hosts to deploy
     :param args: arguments passed to ansible
     """
-    ansible_args = _compose_args(target, args)
+    if target:
+        args = _compose_args(target, args)
+    args.insert(0, 'ansible-playbook')
     from ansible.cli.playbook import PlaybookCLI
-    cli = PlaybookCLI(ansible_args)
+    cli = PlaybookCLI(args)
     cli.parse()
     cli.run()

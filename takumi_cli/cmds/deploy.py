@@ -4,10 +4,11 @@
 
 Usage:
     takumi_deploy <target> [<ansible_args>...]
-    takumi_deploy -h | --help
+    takumi_deploy -h | --help | --help-ansible
 
 Options:
     -h, --help      Show this message and exit
+    --help-ansible  Show ansible help
 """
 
 import schema
@@ -17,7 +18,8 @@ from ..deploy import start
 
 validator = schema.Schema({
     '--help': bool,
-    '<target>': str,
+    '--help-ansible': bool,
+    '<target>': schema.Or(None, str),
     '<ansible_args>': list
 })
 
@@ -30,11 +32,10 @@ def run(args):
     except schema.SchemaError as e:
         raise DocoptExit('{}\n'.format(e))
 
-    target = args['<target>']
-    if target.startswith('-'):
-        raise DocoptExit('Missing target\n')
+    if args['--help-ansible']:
+        args['<ansible_args>'] = ['-h']
 
     try:
-        start(target, args['<ansible_args>'])
+        start(args['<target>'], args['<ansible_args>'])
     except Exception as e:
         raise DocoptExit('{}\n'.format(e))

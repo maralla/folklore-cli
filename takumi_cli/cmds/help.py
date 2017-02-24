@@ -3,8 +3,8 @@
 """Show help for specific command.
 
 Usage:
-    takumi help <command>
-    takumi help -h | --help
+    takumi_help <command>
+    takumi_help -h | --help
 
 Options:
     -h, --help      Show this message and exit
@@ -16,13 +16,11 @@ from docopt import docopt
 validator = schema.Schema({
     '<command>': str,
     '--help': bool,
-    'help': bool
 })
 
 
 def run(args):
-    argv = ['help'] + args
-    args = docopt(__doc__, argv=argv)
+    args = docopt(__doc__, argv=args)
 
     try:
         args = validator.validate(args)
