@@ -25,10 +25,16 @@
     dest: /tmp/{{ app_name }}
     version: '{{ version }}'
   tags: deploy
+  register: checkout_result
 
 - name: Save commit file
   become: no
-  local_action: shell git rev-parse '{{ version }}' > .commit chdir=/tmp/{{ app_name }}
+  local_action:
+    module: lineinfile
+    dest: /tmp/{{ app_name }}/.commit
+    regexp: '^'
+    create: yes
+    line: "{{ checkout_result.after }}"
   tags: deploy
 
 - name: Synchronize application
