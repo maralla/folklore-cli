@@ -113,11 +113,11 @@ def _compose_args(target, args):
         args.extend(['--limit', target])
     args.append(PLAYBOOK_PATH)
 
-    def _has_invertory():
+    def _has_inventory():
         return bool(set(('-i', '--inventory-file')).intersection(args))
 
     cwd = os.getcwd()
-    if not _has_invertory():
+    if not _has_inventory():
         hosts = _find_hosts(cwd)
         if not hosts and config.deploy:
             hosts = _gen_hosts(config.deploy)
