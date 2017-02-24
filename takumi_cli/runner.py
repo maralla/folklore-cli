@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -
 
 """
-takumi_cli.app
-~~~~~~~~~~~~~~
+takumi_cli.runner
+~~~~~~~~~~~~~~~~~
 
 This module implements the `serve` command. This command is used for running
 Takumi services using gunicorn gevent worker.
@@ -13,25 +13,77 @@ Available hooks:
 
 Registered hooks:
 
-    - after_load
+    - after_load    config_log
 """
 
-import sys
+import errno
 import os
+import socket
+import sys
 
-from gunicorn.config import Setting, validate_pos_int
+import gunicorn.workers
+
 from gunicorn.app.base import Application
+from gunicorn.config import Setting, validate_pos_int
 from gunicorn.util import import_app
+from gunicorn.workers.ggevent import GeventWorker
+
+from thriftpy.protocol.cybin import ProtocolError
+from thriftpy.protocol.exc import TProtocolException
+from thriftpy.transport import TSocket
+from thriftpy.transport import TTransportException
 
 from takumi_config import config
 from takumi_service.hook import hook_registry
 from takumi_service.log import config_log
-
-# register gevent_thriftpy worker
-from .worker import Worker as _  # noqa
+from takumi_service.service import TakumiService
 
 # register log config hook
 hook_registry.register(config_log)
+
+
+class Worker(GeventWorker):
+    def handle(self, listener, client, addr):
+        thrift_service = TakumiService()
+        ctx = thrift_service.context
+        # clear context
+        ctx.clear()
+        ctx['client_addr'] = addr[0]
+        ctx['worker'] = self
+
+        client_timeout = self.app.cfg.client_timeout
+        if client_timeout is not None:
+            client.settimeout(client_timeout)
+
+        handler_getter = self.app.wsgi()
+        thrift_service.set_handler(handler_getter())
+        sock = TSocket()
+        sock.set_handle(client)
+        try:
+            thrift_service.run(sock)
+        except TTransportException:
+            pass
+        except (TProtocolException, ProtocolError) as err:
+            self.log.warning('Protocol error, is client(%s) correct? %s',
+                             addr, err)
+        except socket.timeout:
+            self.log.warning('Client timeout: %r', addr)
+        except socket.error as e:
+            if e.args[0] == errno.ECONNRESET:
+                self.log.debug('%r: %r', addr, e)
+            elif e.args[0] == errno.EPIPE:
+                self.log.warning('%r: %r', addr, e)
+            else:
+                self.log.exception('%r: %r', addr, e)
+        except Exception as e:
+            self.log.exception('%r: %r', addr, e)
+        finally:
+            ctx.clear()
+
+# Replace gunicorn default workers
+gunicorn.workers.SUPPORTED_WORKERS.clear()
+gunicorn.workers.SUPPORTED_WORKERS[
+    'gevent_thriftpy'] = 'takumi_cli.runner.Worker'
 
 
 class ClientTimeout(Setting):

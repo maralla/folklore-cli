@@ -6,7 +6,7 @@ Usage:
     takumi_serve [<gunicorn_args>...]
 """
 
-from ..app import AppRunner
+from ..runner import AppRunner
 
 
 def run(args):

@@ -2,8 +2,7 @@
 
 
 def test_set_cfg(app_yaml, gunicorn_serve):
-    from takumi_cli.app import AppRunner
-    from takumi_cli.worker import Worker
+    from takumi_cli.runner import AppRunner, Worker
 
     app = AppRunner()
     app.init(None, None, None)
@@ -21,7 +20,7 @@ def test_set_cfg(app_yaml, gunicorn_serve):
 
 
 def test_load_app(app_yaml, gunicorn_serve):
-    from takumi_cli.app import AppRunner
+    from takumi_cli.runner import AppRunner
     from .app import app as mock_app
 
     app = AppRunner()
