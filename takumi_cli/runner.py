@@ -34,16 +34,12 @@ from thriftpy.transport import TSocket
 from thriftpy.transport import TTransportException
 
 from takumi_config import config
-from takumi_service.hook import hook_registry
-from takumi_service.log import config_log
-from takumi_service.service import TakumiService
-
-# register log config hook
-hook_registry.register(config_log)
 
 
 class Worker(GeventWorker):
     def handle(self, listener, client, addr):
+        from takumi_service.service import TakumiService
+
         thrift_service = TakumiService()
         ctx = thrift_service.context
         # clear context
@@ -109,6 +105,10 @@ class AppRunner(Application):
         self.chdir()
 
         def load_app():
+            from takumi_service.hook import hook_registry
+            from takumi_service.log import config_log
+            # register log config hook
+            hook_registry.register(config_log)
             app = import_app(config.app)
             hook_registry.on_after_load()
             return app

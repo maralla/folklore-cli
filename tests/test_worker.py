@@ -16,7 +16,7 @@ class MockService(object):
 
 
 def test_worker_handle(app_yaml, gunicorn_serve):
-    import takumi_cli.runner as takumi_cli_runner
+    import takumi_service.service as takumi_service_
     from takumi_cli.runner import AppRunner, Worker
     from .app import app as mock_app
 
@@ -27,7 +27,7 @@ def test_worker_handle(app_yaml, gunicorn_serve):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    with mock.patch.object(takumi_cli_runner, 'TakumiService',
+    with mock.patch.object(takumi_service_, 'TakumiService',
                            return_value=MockService):
         worker.handle(worker.sockets[0], sock, ('127.0.0.1', 8465))
 
