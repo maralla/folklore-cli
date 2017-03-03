@@ -16,22 +16,15 @@ Registered hooks:
     - after_load    config_log
 """
 
-import errno
 import os
 import socket
 import sys
 
 import gunicorn.workers
-
 from gunicorn.app.base import Application
 from gunicorn.config import Setting, validate_pos_int
 from gunicorn.util import import_app
 from gunicorn.workers.ggevent import GeventWorker
-
-from thriftpy.protocol.cybin import ProtocolError
-from thriftpy.protocol.exc import TProtocolException
-from thriftpy.transport import TSocket
-from thriftpy.transport import TTransportException
 
 from takumi_config import config
 
@@ -39,12 +32,14 @@ from takumi_config import config
 class Worker(GeventWorker):
     def handle(self, listener, client, addr):
         from takumi_service.service import TakumiService
+        from thriftpy.transport import TSocket
 
         thrift_service = TakumiService()
         ctx = thrift_service.context
         # clear context
         ctx.clear()
         ctx['client_addr'] = addr[0]
+        ctx['client_port'] = addr[1]
         ctx['worker'] = self
 
         client_timeout = self.app.cfg.client_timeout
@@ -55,24 +50,22 @@ class Worker(GeventWorker):
         thrift_service.set_handler(handler_getter())
         sock = TSocket()
         sock.set_handle(client)
+
+        logger = self.log
         try:
             thrift_service.run(sock)
-        except TTransportException:
-            pass
-        except (TProtocolException, ProtocolError) as err:
-            self.log.warning('Protocol error, is client(%s) correct? %s',
-                             addr, err)
         except socket.timeout:
-            self.log.warning('Client timeout: %r', addr)
+            logger.warn('Client timeout: %r', addr)
         except socket.error as e:
+            import errno
             if e.args[0] == errno.ECONNRESET:
-                self.log.debug('%r: %r', addr, e)
+                logger.debug('%r: %s', addr, str(e))
             elif e.args[0] == errno.EPIPE:
-                self.log.warning('%r: %r', addr, e)
+                logger.warn('%r: %s', addr, str(e))
             else:
-                self.log.exception('%r: %r', addr, e)
+                logger.exception('%r: %s', addr, str(e))
         except Exception as e:
-            self.log.exception('%r: %r', addr, e)
+            logger.exception('%r: %s', addr, str(e))
         finally:
             ctx.clear()
 
