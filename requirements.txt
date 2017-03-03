@@ -1,8 +1,8 @@
-docopt==0.6.2
-schema==0.6.5
+takumi-config
+takumi-service
+docopt
+schema
 gevent>=1.2.1
 thriftpy
 gunicorn
-git+git://github.com/elemepi/takumi-config.git#egg=takumi_config
-git+git://github.com/elemepi/takumi-service.git#egg=takumi_service
 ansible>=2.2.0.0
