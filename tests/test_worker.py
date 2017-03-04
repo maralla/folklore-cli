@@ -47,16 +47,19 @@ def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
     logger.debug = mock.Mock()
     MockService.run.side_effect = socket.error(errno.ECONNRESET)
     worker.handle(None, sock, ('127.0.0.1', 8465))
-    logger.debug.assert_called_with('%r: %s', ('127.0.0.1', 8465), '54')
+    logger.debug.assert_called_with('%r: %s', ('127.0.0.1', 8465),
+                                    str(errno.ECONNRESET))
 
     MockService.run.side_effect = socket.error(errno.EPIPE)
     worker.handle(None, sock, ('127.0.0.1', 8465))
-    logger.warn.assert_called_with('%r: %s', ('127.0.0.1', 8465), '32')
+    logger.warn.assert_called_with('%r: %s', ('127.0.0.1', 8465),
+                                   str(errno.EPIPE))
 
     logger.exception = mock.Mock()
     MockService.run.side_effect = socket.error(errno.E2BIG)
     worker.handle(None, sock, ('127.0.0.1', 8465))
-    logger.exception.assert_called_with('%r: %s', ('127.0.0.1', 8465), '7')
+    logger.exception.assert_called_with('%r: %s', ('127.0.0.1', 8465),
+                                        str(errno.E2BIG))
 
     MockService.run.side_effect = TypeError
     worker.handle(None, sock, ('127.0.0.1', 8465))
