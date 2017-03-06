@@ -10,10 +10,6 @@ Takumi services using gunicorn gevent worker.
 Available hooks:
 
     - after_load    Hook to be called after app imported
-
-Registered hooks:
-
-    - after_load    config_log
 """
 
 import os
@@ -98,12 +94,8 @@ class AppRunner(Application):
         self.chdir()
 
         def load_app():
-            from takumi_service.hook import hook_registry
-            from takumi_service.log import config_log
-            # register log config hook
-            hook_registry.register(config_log)
             app = import_app(config.app)
-            hook_registry.on_after_load()
+            app.hook_registry.on_after_load()
             return app
         return load_app
 
