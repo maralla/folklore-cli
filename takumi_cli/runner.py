@@ -27,7 +27,7 @@ from takumi_config import config
 
 class Worker(GeventWorker):
     def handle(self, listener, client, addr):
-        from takumi_service.service import TakumiService
+        from takumi.service import TakumiService
         from thriftpy.transport import TSocket
 
         thrift_service = TakumiService()

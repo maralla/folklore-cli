@@ -17,7 +17,7 @@ class MockService(object):
 
 
 def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
-    import takumi_service.service as takumi_service_
+    import takumi.service as takumi_service
     from takumi_cli.runner import AppRunner, Worker
     from .app import app as mock_app
 
@@ -30,7 +30,7 @@ def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     mock_service = mock.Mock(return_value=MockService)
-    monkeypatch.setattr(takumi_service_, 'TakumiService', mock_service)
+    monkeypatch.setattr(takumi_service, 'TakumiService', mock_service)
 
     worker.handle(None, sock, ('127.0.0.1', 8465))
     assert MockService.context['client_addr'] == '127.0.0.1'

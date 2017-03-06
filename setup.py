@@ -16,8 +16,8 @@ setup(
     zip_safe=False,
     url='https://github.com/elemecreativelab/takumi-cli',
     install_requires=[
+        'takumi',
         'takumi-config',
-        'takumi-service',
         'docopt',
         'schema',
         'gevent>=1.2.1',
