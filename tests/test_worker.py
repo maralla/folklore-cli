@@ -39,10 +39,11 @@ def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
     MockService.run.assert_called()
     MockService.set_handler.assert_called_with(mock_app)
 
-    logger.warn = mock.Mock()
+    logger.warning = mock.Mock()
     MockService.run.side_effect = socket.timeout('hello')
     worker.handle(None, sock, ('127.0.0.1', 8465))
-    logger.warn.assert_called_with('Client timeout: %r', ('127.0.0.1', 8465))
+    logger.warning.assert_called_with(
+        'Client timeout: %r', ('127.0.0.1', 8465))
 
     logger.debug = mock.Mock()
     MockService.run.side_effect = socket.error(errno.ECONNRESET)
@@ -52,8 +53,8 @@ def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
 
     MockService.run.side_effect = socket.error(errno.EPIPE)
     worker.handle(None, sock, ('127.0.0.1', 8465))
-    logger.warn.assert_called_with('%r: %s', ('127.0.0.1', 8465),
-                                   str(errno.EPIPE))
+    logger.warning.assert_called_with('%r: %s', ('127.0.0.1', 8465),
+                                      str(errno.EPIPE))
 
     logger.exception = mock.Mock()
     MockService.run.side_effect = socket.error(errno.E2BIG)

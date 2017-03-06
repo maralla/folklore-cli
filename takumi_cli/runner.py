@@ -51,13 +51,13 @@ class Worker(GeventWorker):
         try:
             thrift_service.run(sock)
         except socket.timeout:
-            logger.warn('Client timeout: %r', addr)
+            logger.warning('Client timeout: %r', addr)
         except socket.error as e:
             import errno
             if e.args[0] == errno.ECONNRESET:
                 logger.debug('%r: %s', addr, str(e))
             elif e.args[0] == errno.EPIPE:
-                logger.warn('%r: %s', addr, str(e))
+                logger.warning('%r: %s', addr, str(e))
             else:
                 logger.exception('%r: %s', addr, str(e))
         except Exception as e:
