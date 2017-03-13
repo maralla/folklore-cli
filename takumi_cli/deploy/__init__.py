@@ -27,8 +27,11 @@ def _vars(d):
 
 
 def _convert_section(name, data):
-    hosts = data.get('hosts', [])
+    hosts = data.get('hosts', {})
     group_vars = data.get('vars', {})
+
+    # Set env variable
+    group_vars['env'] = name
 
     items = ['[{}]'.format(name)]
     for host_name, host_vars in sorted(hosts.items()):

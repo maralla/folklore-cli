@@ -38,6 +38,7 @@ localhost
 www.data.com
 www.data2.com
 [testing:vars]
+env=testing
 version=23543543
 [service-deploy:children]
 testing
@@ -68,7 +69,8 @@ def test_gen_hosts2(app_yaml):
         ret = f.read()
     assert ret == """[testing]
 localhost
-
+[testing:vars]
+env=testing
 [service-deploy:children]
 testing
 [service-deploy:vars]
@@ -117,6 +119,7 @@ localhost version=123
 www.data.com
 www.data2.com
 [testing:vars]
+env=testing
 version=23543543
 [service-deploy:children]
 testing
@@ -156,6 +159,7 @@ def test_gen_hosts4(app_yaml):
     assert ret == """[testing]
 localhost
 [testing:vars]
+env=testing
 version=23543543
 [service-deploy:children]
 testing
