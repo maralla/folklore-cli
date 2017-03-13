@@ -21,9 +21,9 @@ def test_set_cfg(app_yaml, gunicorn_serve):
 
 def test_load_app(app_yaml, gunicorn_serve):
     from takumi_cli.runner import AppRunner
-    from .app import app as mock_app
+    import app as mock_app
 
     app = AppRunner()
     getter = app.load()
     handler = getter()
-    assert handler == mock_app
+    assert handler == mock_app.app

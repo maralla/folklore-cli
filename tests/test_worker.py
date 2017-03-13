@@ -19,7 +19,7 @@ class MockService(object):
 def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
     import takumi.service as takumi_service
     from takumi_cli.runner import AppRunner, Worker
-    from .app import app as mock_app
+    import app as mock_app
 
     logger = logging.getLogger('test')
 
@@ -37,7 +37,7 @@ def test_worker_handle(app_yaml, gunicorn_serve, monkeypatch):
     assert isinstance(MockService.context['worker'], Worker)
     assert MockService.context['worker'].alive
     MockService.run.assert_called()
-    MockService.set_handler.assert_called_with(mock_app)
+    MockService.set_handler.assert_called_with(mock_app.app)
 
     logger.warning = mock.Mock()
     MockService.run.side_effect = socket.timeout('hello')

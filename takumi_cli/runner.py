@@ -101,7 +101,7 @@ class AppRunner(Application):
 
     def set_cfg(self):
         self.cfg.set('default_proc_name', config.app_name)
-        self.cfg.set('worker_class', config.worker_class)
+        self.cfg.set('worker_class', 'gevent_thriftpy')
         self.cfg.set('worker_connections', config.worker_connections)
         self.cfg.set('loglevel', 'info')
         self.cfg.set('graceful_timeout', 3)
@@ -109,7 +109,7 @@ class AppRunner(Application):
         self.cfg.set('bind', '0.0.0.0:{}'.format(config.port))
         self.cfg.set('workers', config.workers)
 
-        if config.env.name is 'dev' or config.syslog_disabled:
+        if config.env == 'dev' or config.syslog_disabled:
             self.cfg.set('errorlog', '-')
         else:
             self.cfg.set('syslog', True)
