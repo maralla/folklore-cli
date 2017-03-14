@@ -26,6 +26,7 @@ from docopt import docopt
 from .help import run as run_help
 from .serve import run as run_serve
 from .deploy import run as run_deploy
+from .shell import run as run_shell
 
 __version__ = '0.1.0'
 
@@ -49,6 +50,8 @@ def run(command, args):
         run_serve(args)
     elif command == 'deploy':
         run_deploy(args)
+    elif command == 'shell':
+        run_shell(args)
     else:
         exit('Command {!r} not supported'.format(command))
 
