@@ -26,7 +26,7 @@ setup(
     ],
     extras_require={
         'deploy': ['ansible>=2.2.0.0'],
-        'client': ['takumi-client']
+        'shell': ['takumi-client', 'IPython']
     },
     entry_points={
         'console_scripts': [

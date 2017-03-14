@@ -6,6 +6,13 @@ takumi-cli: Takumi command line toolkit
 
 Command line tool for managing Takumi services.
 
+Install
+-------
+
+.. code:: bash
+
+    $ pip install takumi-cli
+
 Usage
 -----
 
@@ -22,6 +29,12 @@ Run service
 
 Deploy an application
 ~~~~~~~~~~~~~~~~~~~~~
+
+To deploy using ansible, extra requirements should be installed:
+
+.. code:: bash
+
+    $ pip install takumi-cli[deploy]
 
 .. code-block:: bash
 
@@ -58,6 +71,12 @@ Cron jobs are run under app working directory ``/srv/{{ app_name }}``.
 
 Start an interactive shell
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To start an IPython shell, extra requirements should be installed:
+
+.. code:: bash
+
+    $ pip install takumi-cli[shell]
 
 .. code:: bash
 
