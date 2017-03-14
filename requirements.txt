@@ -1,5 +1,6 @@
 takumi
 takumi-config
+takumi-client
 docopt
 schema
 gevent>=1.2.1

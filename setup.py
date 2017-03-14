@@ -25,7 +25,8 @@ setup(
         'gunicorn',
     ],
     extras_require={
-        'deploy': ['ansible>=2.2.0.0']
+        'deploy': ['ansible>=2.2.0.0'],
+        'client': ['takumi-client']
     },
     entry_points={
         'console_scripts': [
