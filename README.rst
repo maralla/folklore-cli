@@ -36,6 +36,8 @@ To deploy using ansible, extra requirements should be installed:
 
     $ pip install takumi-cli[deploy]
 
+Using the following command to deploy:
+
 .. code-block:: bash
 
     # <target> is the cluster or host name defined in app.yaml
@@ -77,6 +79,8 @@ To start an IPython shell, extra requirements should be installed:
 .. code:: bash
 
     $ pip install takumi-cli[shell]
+
+Start the shell:
 
 .. code:: bash
 
