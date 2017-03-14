@@ -13,7 +13,7 @@ class MockApp(object):
     def __init__(self):
         self.hook_registry = mock.Mock()
         self.service_name = 'TestService'
-        self.api_map = {'ping': Handler(mock.Mock())}
+        self.api_map = {'ping': Handler(mock.Mock(__name__='ping'))}
         self.thrift_module = mock.Mock(
             TestService=mock.Mock(thrift_services=['ping']))
 
