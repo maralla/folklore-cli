@@ -9,19 +9,19 @@ Command line tool for managing Takumi services.
 Usage
 -----
 
-General usage:
-
 .. code-block:: bash
 
     $ takumi -h
 
-To run a Takumi service
+Run service
+~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ takumi serve
 
-To deploy an application:
+Deploy an application
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -55,3 +55,10 @@ then run:
     $ takumi deploy <target> -t cron
 
 Cron jobs are run under app working directory ``/srv/{{ app_name }}``.
+
+Start an interactive shell
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: bash
+
+    $ takumi shell -t <host> -- <ipython args>
