@@ -11,7 +11,7 @@ Options:
 """
 
 import schema
-from docopt import docopt
+from docopt import docopt, DocoptExit
 
 validator = schema.Schema({
     '<command>': str,
@@ -25,6 +25,6 @@ def run(args):
     try:
         args = validator.validate(args)
     except schema.SchemaError as e:
-        exit(e)
+        raise DocoptExit('{}\n'.format(e))
 
     return args['<command>']

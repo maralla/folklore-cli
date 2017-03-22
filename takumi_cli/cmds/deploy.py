@@ -14,8 +14,6 @@ Options:
 import schema
 from docopt import docopt, DocoptExit
 
-from ..deploy import start
-
 validator = schema.Schema({
     '--help': bool,
     '--help-ansible': bool,
@@ -35,7 +33,9 @@ def run(args):
     if args['--help-ansible']:
         args['<ansible_args>'] = ['-h']
 
+    from ..deploy import start
+
     try:
         start(args['<target>'], args['<ansible_args>'])
     except Exception as e:
-        raise DocoptExit('{}\n'.format(e))
+        exit('Fail to deploy: {}'.format(e))

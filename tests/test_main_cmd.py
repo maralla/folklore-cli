@@ -1,19 +1,63 @@
 # -*- coding: utf-8 -*-
 
+import pytest
 import mock
 import sys
+from docopt import DocoptExit
+import takumi_cli.cmds as cmds
 
 
-def test_main(monkeypatch):
-    import takumi_cli.cmds as cmds
+@pytest.fixture
+def cmd():
+    c = []
+    with mock.patch.object(sys, 'argv', c):
+        yield c
 
-    mock_help = mock.Mock(return_value='serve')
-    mock_serve = mock.Mock()
 
-    monkeypatch.setattr(cmds, 'run_help', mock_help)
-    monkeypatch.setattr(cmds, 'run_serve', mock_serve)
-
-    with mock.patch.object(sys, 'argv', ['takumi', 'help', 'serve']):
+def test_validation(cmd):
+    cmd.extend(['takumi', 'missing'])
+    with pytest.raises(DocoptExit) as e:
         cmds.main()
-    mock_help.assert_called_with(['serve'])
+    assert ("`<command>` should be one of "
+            "('help', 'run', 'test', 'serve', "
+            "'deploy', 'shell')") in str(e.value)
+
+
+def test_help(cmd, monkeypatch):
+    import takumi_cli.cmds.serve
+    mock_serve = mock.Mock()
+    monkeypatch.setattr(takumi_cli.cmds.serve, 'run', mock_serve)
+
+    cmd[:] = ['takumi', 'help', 'serve']
+    cmds.main()
     mock_serve.assert_called_with(['-h'])
+
+
+def test_serve(cmd, monkeypatch):
+    import takumi_cli.cmds.serve
+    mock_serve = mock.Mock()
+    monkeypatch.setattr(takumi_cli.cmds.serve, 'run', mock_serve)
+
+    cmd[:] = ['takumi', 'serve']
+    cmds.main()
+    mock_serve.assert_called_with([])
+
+
+def test_deploy(cmd, monkeypatch):
+    import takumi_cli.cmds.deploy
+    mock_deploy = mock.Mock()
+    monkeypatch.setattr(takumi_cli.cmds.deploy, 'run', mock_deploy)
+
+    cmd[:] = ['takumi', 'deploy', 'testing']
+    cmds.main()
+    mock_deploy.assert_called_with(['testing'])
+
+
+def test_shell(cmd, monkeypatch):
+    import takumi_cli.cmds.shell
+    mock_shell = mock.Mock()
+    monkeypatch.setattr(takumi_cli.cmds.shell, 'run', mock_shell)
+
+    cmd[:] = ['takumi', 'shell', '--', '-i', 'hello.py']
+    cmds.main()
+    mock_shell.assert_called_with(['--', '-i', 'hello.py'])

@@ -21,12 +21,7 @@ Commands:
 
 import sys
 import schema
-from docopt import docopt
-
-from .help import run as run_help
-from .serve import run as run_serve
-from .deploy import run as run_deploy
-from .shell import run as run_shell
+from docopt import docopt, DocoptExit
 
 __version__ = '0.1.0'
 
@@ -44,16 +39,19 @@ validator = schema.Schema({
 
 def run(command, args):
     if command == 'help':
-        cmd = run_help(args)
-        run(cmd, ['-h'])
-    elif command == 'serve':
-        run_serve(args)
-    elif command == 'deploy':
-        run_deploy(args)
-    elif command == 'shell':
-        run_shell(args)
-    else:
-        exit('Command {!r} not supported'.format(command))
+        from .help import run as help
+        cmd = help(args)
+        return run(cmd, ['-h'])
+    if command == 'serve':
+        from .serve import run as serve
+        return serve(args)
+    if command == 'deploy':
+        from .deploy import run as deploy
+        return deploy(args)
+    if command == 'shell':
+        from .shell import run as shell
+        return shell(args)
+    raise DocoptExit('Command {!r} not supported\n'.format(command))
 
 
 def main():
@@ -61,7 +59,7 @@ def main():
     try:
         args = validator.validate(args)
     except schema.SchemaError as e:
-        exit(e)
+        raise DocoptExit('{}\n'.format(e))
 
     # replace argv
     sys.argv = [' '.join(sys.argv[:2])] + sys.argv[2:]

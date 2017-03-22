@@ -70,9 +70,9 @@ def run(args):
         # Insert current directory
         sys.path.insert(0, '')
 
-    from takumi_config import config
     import gevent.monkey
     gevent.monkey.patch_all()
+    from takumi_config import config
 
     client = _create_client_pool(args['--host'])
     banner = """Python {}
@@ -80,9 +80,11 @@ def run(args):
 Interactive shell for service {}.
 c         -> Client for invoking service api.
 c._thrift -> Loaded thrift module.
+config    -> Config entry.
 """.format(sys.version.split('\n')[0].strip(), config.app_name)
 
     ns = {
+        'config': config,
         'c': client
     }
 
