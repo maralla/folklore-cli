@@ -13,6 +13,7 @@ def test_create_client_pool(app_yaml):
 
 def test_run(app_yaml, monkeypatch):
     from takumi_cli.cmds.shell import run, _ClientWrapper
+    from takumi_config import config
     shell = mock.Mock()
     import IPython
     monkeypatch.setattr(IPython, 'start_ipython', shell)
@@ -25,12 +26,13 @@ def test_run(app_yaml, monkeypatch):
     run(['-t', 'www.example.com', '--', '-i', 'hello.py'])
     shell.assert_called_with(
         argv=['-i', 'hello.py'],
-        user_ns={'c': mock_client},
+        user_ns={'c': mock_client, 'config': config},
         config={'TerminalInteractiveShell': {
             'banner1': """Python {}
 
 Interactive shell for service test.
 c         -> Client for invoking service api.
 c._thrift -> Loaded thrift module.
+config    -> Config entry.
 """.format(sys.version.split('\n')[0].strip())
         }})
