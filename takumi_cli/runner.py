@@ -124,6 +124,6 @@ class AppRunner(Application):
     def patch_gunicorn(self):
         import gunicorn.sock
 
-        def _tcp_socket_str(self):
-            return 'tcp://%s:%d' % self.sock.getsockname()
-        gunicorn.sock.TCPSocket.__str__ = _tcp_socket_str
+        def _socket_str(self):
+            return '%s:%d' % self.sock.getsockname()
+        gunicorn.sock.TCPSocket.__str__ = _socket_str
