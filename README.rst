@@ -36,14 +36,26 @@ To deploy using ansible, extra requirements should be installed:
 
     $ pip install takumi-cli[deploy]
 
+
+Add ``deploy`` entry to *app.yaml*:
+
+.. code:: yaml
+
+    deploy:
+      vars:
+        version: HEAD
+      targets:
+        testing:
+          - localhost
+          - testing.com
+        prod:
+          - app.prod
+
 Using the following command to deploy:
 
 .. code-block:: bash
 
-    # <target> is the cluster or host name defined in app.yaml
-    # or ansible inventory file.
-    # <ansible_args> is then extra arguments passed to ansible-playbook.
-    $ takumi deploy <target> <ansible_args>
+    $ takumi deploy testing -t deploy
 
 The deploy command is implemented using `ansible <https://github.com/ansible/ansible>`_.
 
