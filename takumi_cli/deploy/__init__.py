@@ -10,7 +10,6 @@ Implement deploy command using ansible.
 import json
 import os
 import tempfile
-from takumi_config import config
 
 PLAYBOOK_PATH = os.path.join(
     os.path.dirname(__file__), 'playbook', 'playbook.yml')
@@ -68,8 +67,8 @@ def _convert_hosts(hosts):
     return sections, section_names
 
 
-def _convert_crontab(data):
-    working_dir = '/srv/{}'.format(config.app_name)
+def _convert_crontab(data, app_name):
+    working_dir = '/srv/{}'.format(app_name)
     items = []
     for item in data:
         sched = item.get('schedule')
@@ -88,14 +87,14 @@ def _convert_crontab(data):
     return items
 
 
-def _gen_hosts(deploy_config):
+def _gen_hosts(deploy_config, app_name):
     hosts = deploy_config.get('targets', {})
     sections, section_names = _convert_hosts(hosts)
 
-    crontab = _convert_crontab(deploy_config.get('crontab', []))
+    crontab = _convert_crontab(deploy_config.get('crontab', []), app_name)
     deploy_vars = deploy_config.get('vars', {})
     deploy_vars.update({
-        'app_name': config.app_name,
+        'app_name': app_name,
         'app_repo': os.getcwd(),
         'crontabs': json.dumps(crontab)
     })
@@ -114,31 +113,38 @@ def _gen_hosts(deploy_config):
     return hosts_file
 
 
-def _compose_args(target, args):
-    if '--limit' not in args:
-        args.extend(['--limit', target])
-    args.append(PLAYBOOK_PATH)
+def _compose_args(args):
+    ansible_args = args['<ansible_args>']
+    target = args['<target>']
+    tags = args['--tags']
+
+    if target:
+        ansible_args.extend(['--limit', target])
+    if tags:
+        ansible_args.extend(['--tags', tags])
 
     def _has_inventory():
-        return bool(set(('-i', '--inventory-file')).intersection(args))
+        return bool(set(('-i', '--inventory-file')).intersection(ansible_args))
 
-    if not _has_inventory():
+    if target and not _has_inventory():
+        from takumi_config import config
         hosts = _find_hosts(os.getcwd())
         if not hosts and config.deploy:
-            hosts = _gen_hosts(config.deploy)
+            hosts = _gen_hosts(config.deploy, config.app_name)
         if hosts:
-            args.extend(['-i', hosts])
-    return args
+            ansible_args.extend(['--inventory-file', hosts])
+
+    if target:
+        ansible_args.append(args['--play'] or PLAYBOOK_PATH)
+    return ansible_args
 
 
-def start(target, args):
+def start(args):
     """Start deployment powered by ansible.
 
-    :param target: hosts to deploy
     :param args: arguments passed to ansible
     """
-    if target:
-        args = _compose_args(target, args)
+    args = _compose_args(args)
     args.insert(0, 'ansible-playbook')
     from ansible.cli.playbook import PlaybookCLI
     cli = PlaybookCLI(args)

@@ -2,9 +2,16 @@
 
 import mock
 import os
+import pytest
 
 
-def test_gen_hosts1(app_yaml):
+@pytest.fixture
+def mock_getcwd():
+    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
+        yield
+
+
+def test_gen_hosts1(mock_getcwd):
     # vars:
     #   version: HEAD
     # targets:
@@ -29,8 +36,7 @@ def test_gen_hosts1(app_yaml):
             'version': 'HEAD'
         }
     }
-    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
-        temp_host = _gen_hosts(data)
+    temp_host = _gen_hosts(data, 'test')
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -49,7 +55,7 @@ crontabs=[]
 version=HEAD"""
 
 
-def test_gen_hosts2(app_yaml):
+def test_gen_hosts2(mock_getcwd):
     # targets:
     #   testing: localhost
     # vars:
@@ -63,8 +69,7 @@ def test_gen_hosts2(app_yaml):
             'version': 'HEAD'
         }
     }
-    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
-        temp_host = _gen_hosts(data)
+    temp_host = _gen_hosts(data, 'test')
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -80,7 +85,7 @@ crontabs=[]
 version=HEAD"""
 
 
-def test_gen_hosts3(app_yaml):
+def test_gen_hosts3(mock_getcwd):
     # vars:
     #   version: HEAD
     # targets:
@@ -110,8 +115,7 @@ def test_gen_hosts3(app_yaml):
             'version': 'HEAD'
         }
     }
-    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
-        temp_host = _gen_hosts(data)
+    temp_host = _gen_hosts(data, 'test')
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -130,7 +134,7 @@ crontabs=[]
 version=HEAD"""
 
 
-def test_gen_hosts4(app_yaml):
+def test_gen_hosts4(mock_getcwd):
     # vars:
     #   version: HEAD
     # targets:
@@ -152,8 +156,7 @@ def test_gen_hosts4(app_yaml):
             'version': 'HEAD'
         }
     }
-    with mock.patch.object(os, 'getcwd', return_value='repo_path'):
-        temp_host = _gen_hosts(data)
+    temp_host = _gen_hosts(data, 'test')
     with open(temp_host) as f:
         ret = f.read()
     assert ret == """[testing]
@@ -170,7 +173,7 @@ crontabs=[]
 version=HEAD"""
 
 
-def test_convert_crontab(app_yaml):
+def test_convert_crontab(mock_getcwd):
     input_data = [
         {
             'job': 'ls -alh > /dev/null',
@@ -187,7 +190,7 @@ def test_convert_crontab(app_yaml):
         }
     ]
     from takumi_cli.deploy import _convert_crontab
-    ret = _convert_crontab(input_data)
+    ret = _convert_crontab(input_data, 'test')
     assert ret == [
         {
             'month': '*', 'hour': '5,2', 'minute': '0', 'day': '*',

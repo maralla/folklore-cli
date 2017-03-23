@@ -2,3 +2,7 @@ app_name: test
 app: app:app
 settings: settings
 worker_connections: 10
+
+deploy:
+  targets:
+    testing: localhost
