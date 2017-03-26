@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os.path
 import pytest
 import mock
 import tempfile
 from docopt import DocoptExit
 from takumi_cli.cmds.deploy import run
+from takumi_cli.deploy import PLAYBOOK_PATH
 import ansible.cli.playbook
-
-PROJ = os.path.dirname(os.path.dirname(__file__))
 
 
 @pytest.fixture
@@ -41,7 +39,7 @@ def test_command(mock_ansible, mock_tempfile):
         'ansible-playbook',
         '--limit', 'testing',
         '--inventory-file', mock_tempfile,
-        '{}/takumi_cli/deploy/playbook/playbook.yml'.format(PROJ)
+        PLAYBOOK_PATH,
     ])
 
 
@@ -52,7 +50,7 @@ def test_command_tag(mock_ansible, mock_tempfile):
         '--limit', 'testing',
         '--tags', 'deploy,cron',
         '--inventory-file', mock_tempfile,
-        '{}/takumi_cli/deploy/playbook/playbook.yml'.format(PROJ)
+        PLAYBOOK_PATH,
     ])
 
 
@@ -74,7 +72,7 @@ def test_command_ansible_args(mock_ansible, mock_tempfile):
         '--ask-pass',
         '--limit', 'testing',
         '--inventory-file', mock_tempfile,
-        '{}/takumi_cli/deploy/playbook/playbook.yml'.format(PROJ)
+        PLAYBOOK_PATH
     ])
 
 
