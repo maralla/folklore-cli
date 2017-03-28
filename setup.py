@@ -17,6 +17,7 @@ setup(
     url='https://github.com/elemecreativelab/takumi-cli',
     install_requires=[
         'takumi',
+        'takumi-ext',
         'takumi-config',
         'docopt',
         'schema',

@@ -1,4 +1,5 @@
 takumi
+takumi-ext
 takumi-config
 takumi-client
 docopt
