@@ -66,10 +66,6 @@ def run(args):
     except schema.SchemaError as e:
         raise DocoptExit('{}\n'.format(e))
 
-    if sys.path[0] != '':
-        # Insert current directory
-        sys.path.insert(0, '')
-
     import gevent.monkey
     gevent.monkey.patch_all()
     from takumi_config import config

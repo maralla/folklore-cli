@@ -61,6 +61,10 @@ def main():
     except schema.SchemaError as e:
         raise DocoptExit('{}\n'.format(e))
 
+    if '' not in sys.path:
+        # Insert current directory
+        sys.path.insert(0, '')
+
     # replace argv
     sys.argv = [' '.join(sys.argv[:2])] + sys.argv[2:]
     run(args['<command>'], args['<args>'])
