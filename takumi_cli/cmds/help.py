@@ -3,28 +3,16 @@
 """Show help for specific command.
 
 Usage:
-    takumi_help <command>
-    takumi_help -h | --help
+    takumi help <command>
+    takumi help -h | --help
 
 Options:
     -h, --help      Show this message and exit
 """
 
-import schema
-from docopt import docopt, DocoptExit
-
-validator = schema.Schema({
-    '<command>': str,
-    '--help': bool,
-})
+from ._base import parse_args
 
 
 def run(args):
-    args = docopt(__doc__, argv=args)
-
-    try:
-        args = validator.validate(args)
-    except schema.SchemaError as e:
-        raise DocoptExit('{}\n'.format(e))
-
+    args = parse_args('help', __doc__, args, {'<command>': str})
     return args['<command>']

@@ -21,20 +21,12 @@ Commands:
 
 import sys
 import schema
-from docopt import docopt, DocoptExit
+from docopt import DocoptExit
+from ._base import parse_args
 
 __version__ = '0.1.0'
 
 commands = 'help', 'run', 'test', 'serve', 'deploy', 'shell'
-
-
-validator = schema.Schema({
-    '<command>': schema.And(
-        str, lambda c: c in commands,
-        error='`<command>` should be one of {}'.format(commands)),
-    '<args>': list,
-    '--help': bool,
-})
 
 
 def run(command, args):
@@ -55,16 +47,14 @@ def run(command, args):
 
 
 def main():
-    args = docopt(__doc__, version=__version__, options_first=True)
-    try:
-        args = validator.validate(args)
-    except schema.SchemaError as e:
-        raise DocoptExit('{}\n'.format(e))
+    args = parse_args(None, __doc__, sys.argv[1:], {
+        '<command>': schema.And(
+            str, lambda c: c in commands,
+            error='`<command>` should be one of {}'.format(commands)),
+        '<args>': list,
+    }, version=__version__, options_first=True)
 
     if '' not in sys.path:
         # Insert current directory
         sys.path.insert(0, '')
-
-    # replace argv
-    sys.argv = [' '.join(sys.argv[:2])] + sys.argv[2:]
     run(args['<command>'], args['<args>'])

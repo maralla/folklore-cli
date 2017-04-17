@@ -3,9 +3,9 @@
 """Deploy a Takumi app.
 
 Usage:
-    takumi_deploy <target> [options] [(-- <ansible_args>...)]
-    takumi_deploy -- <ansible_args>...
-    takumi_deploy -h | --help
+    takumi deploy <target> [options] [(-- <ansible_args>...)]
+    takumi deploy -- <ansible_args>...
+    takumi deploy -h | --help
 
 Options:
     -t, --tags TAGS  Only run tasks with these tags
@@ -28,23 +28,17 @@ Example:
 """
 
 import schema
-from docopt import docopt, DocoptExit
-
-validator = schema.Schema({
-    '--tags': schema.Or(None, str),
-    '--play': schema.Or(None, str),
-    '<target>': schema.Or(None, lambda x: x != '--',
-                          error='Invalid value of target'),
-    '<ansible_args>': schema.Or(None, list)
-}, ignore_extra_keys=True)
+from ._base import parse_args
 
 
 def run(args):
-    args = docopt(__doc__, argv=args)
-    try:
-        args = validator.validate(args)
-    except schema.SchemaError as e:
-        raise DocoptExit('{}\n'.format(e))
+    args = parse_args('deploy', __doc__, args, {
+        '--tags': schema.Or(None, str),
+        '--play': schema.Or(None, str),
+        '<target>': schema.Or(None, lambda x: x != '--',
+                              error='Invalid value of target'),
+        '<ansible_args>': list
+    })
 
     from ..deploy import start
 

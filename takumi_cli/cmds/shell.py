@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-"""Start a IPython shell with predefined objects
+"""Start an IPython shell with predefined objects
 
 Usage:
-    takumi_shell [-t HOST] [-- <extra_args>...]
-    takumi_shell -h | --help
+    takumi shell [-t HOST] [(-- <ipython_args>...)]
+    takumi shell -h | --help
 
 Options:
     -h, --help       Show this message and exit
@@ -12,17 +12,10 @@ Options:
 """
 
 import functools
-import schema
 import sys
-from docopt import docopt, DocoptExit
 import importlib
 
-validator = schema.Schema({
-    '--': bool,
-    '<extra_args>': list,
-    '--help': bool,
-    '--host': str,
-})
+from ._base import parse_args
 
 
 class _ClientWrapper(object):
@@ -59,12 +52,10 @@ def _create_client_pool(host):
 
 
 def run(args):
-    args = docopt(__doc__, argv=args)
-
-    try:
-        args = validator.validate(args)
-    except schema.SchemaError as e:
-        raise DocoptExit('{}\n'.format(e))
+    args = parse_args('shell', __doc__, args, {
+        '<ipython_args>': list,
+        '--host': str,
+    })
 
     import gevent.monkey
     gevent.monkey.patch_all()
@@ -88,7 +79,7 @@ config    -> Config entry.
         from IPython import start_ipython
         from traitlets.config.loader import Config
         c = Config(TerminalInteractiveShell={'banner1': banner})
-        start_ipython(config=c, argv=args['<extra_args>'], user_ns=ns)
+        start_ipython(config=c, argv=args['<ipython_args>'], user_ns=ns)
     except ImportError:
         from code import interact
         interact(banner=banner, local=ns)

@@ -3,13 +3,16 @@
 """Serve a takumi thrift service.
 
 Usage:
-    takumi_serve [<gunicorn_args>...]
+    takumi serve [<gunicorn_args>...]
 """
+
+import sys
 
 
 def run(args):
     from ..runner import AppRunner
     from takumi_ext import ext
+    sys.argv = ['takumi serve'] + args
     # Delegate to gunicorn
     runner = AppRunner()
     app_runner_ext = ext['app-runner']
