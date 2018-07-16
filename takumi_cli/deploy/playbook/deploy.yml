@@ -46,11 +46,11 @@
     archive: no
     recursive: yes
     rsync_opts:
-      - "--filter='+ .commit'"
-      - "--filter='- env.yaml'"
-      - "--filter='- hosts'"
-      - "--filter='- .git/'"
-      - "--filter=':- .gitignore'"
+      - "--filter=+ .commit"
+      - "--filter=- env.yaml"
+      - "--filter=- hosts"
+      - "--filter=- .git/"
+      - "--filter=:- .gitignore"
   tags: deploy,sync
   notify: Restart service
 
@@ -74,7 +74,7 @@
   pip:
     chdir: /srv/{{ app_name }}
     requirements: requirements.txt
-    executable: /srv/{{ app_name }}_venv/bin/pip
+    virtualenv: /srv/{{ app_name }}_venv
     extra_args: "-i {{ pypi | default('https://pypi.douban.com/simple') }}"
   tags: deploy,req
   notify: Restart service
