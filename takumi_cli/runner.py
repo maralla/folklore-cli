@@ -32,11 +32,9 @@ class Worker(GeventWorker):
 
         thrift_service = TakumiService()
         ctx = thrift_service.context
-        # clear context
-        ctx.clear()
-        ctx['client_addr'] = addr[0]
-        ctx['client_port'] = addr[1]
-        ctx['worker'] = self
+        ctx.info['client_addr'] = addr[0]
+        ctx.info['client_port'] = addr[1]
+        ctx.info['worker'] = self
 
         client_timeout = self.app.cfg.client_timeout
         if client_timeout is not None:
@@ -62,8 +60,6 @@ class Worker(GeventWorker):
                 logger.exception('%r: %s', addr, str(e))
         except Exception as e:
             logger.exception('%r: %s', addr, str(e))
-        finally:
-            ctx.clear()
 
 # Replace gunicorn default workers
 gunicorn.workers.SUPPORTED_WORKERS.clear()
