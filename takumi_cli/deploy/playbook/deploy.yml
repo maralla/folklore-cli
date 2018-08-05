@@ -24,7 +24,7 @@
     repo: '{{ app_repo }}'
     dest: /tmp/{{ app_name }}
     version: '{{ version }}'
-  tags: deploy
+  tags: deploy,sync
   register: checkout_result
 
 - name: Save commit file
@@ -35,7 +35,7 @@
     regexp: '^'
     create: yes
     line: "{{ checkout_result.after }}"
-  tags: deploy
+  tags: deploy,sync
 
 - name: Synchronize application
   synchronize:
@@ -49,6 +49,7 @@
       - "--filter=+ .commit"
       - "--filter=- env.yaml"
       - "--filter=- hosts"
+      - "--filter=- deploy"
       - "--filter=- .git/"
       - "--filter=:- .gitignore"
   tags: deploy,sync
@@ -75,7 +76,7 @@
     chdir: /srv/{{ app_name }}
     requirements: requirements.txt
     virtualenv: /srv/{{ app_name }}_venv
-    extra_args: "-i {{ pypi | default('https://pypi.douban.com/simple') }}"
+    extra_args: "-i {{ pypi | default('https://pypi.org/simple') }}"
   tags: deploy,req
   notify: Restart service
 
