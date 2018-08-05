@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='takumi_cli',
-    version='0.1.1',
+    version='0.1.2',
     description='Takumi service framework command line toolkit',
     long_description=open("README.rst").read(),
     author="Eleme Lab",
