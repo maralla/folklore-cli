@@ -1,5 +1,5 @@
 folklore-cli: Folklore command line toolkit
-=======================================
+===========================================
 
 .. image:: https://travis-ci.org/maralla/folklore-cli.svg?branch=master
     :target: https://travis-ci.org/maralla/folklore-cli
