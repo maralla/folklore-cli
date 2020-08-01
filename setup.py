@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='folklore_cli',
-    version='0.1.2',
+    version='0.2.0',
     description='Folklore service framework command line toolkit',
     long_description=open("README.rst").read(),
     author="maralla",
