@@ -4,7 +4,7 @@ folklore-cli: Folklore command line toolkit
 .. image:: https://travis-ci.org/maralla/folklore-cli.svg?branch=master
     :target: https://travis-ci.org/maralla/folklore-cli
 
-Command line tool for managing Folklore services.
+Command line tool for managing `Folklore <https://github.com/maralla/folklore>`_ services.
 
 Install
 -------
