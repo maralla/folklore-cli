@@ -1,0 +1,10 @@
+folklore
+folklore-ext
+folklore-config
+folklore-client
+docopt
+schema
+gevent>=1.2.1
+thriftpy
+gunicorn
+ansible>=2.2.0.0

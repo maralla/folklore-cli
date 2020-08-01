@@ -1,0 +1,3 @@
+include LICENSE
+graft folklore_cli/deploy/playbook
+recursive-exclude folklore_cli/deploy/playbook *.retry
